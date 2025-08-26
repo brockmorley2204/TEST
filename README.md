@@ -4,29 +4,22 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Find Your Top Local Agent</title>
-
-  <!-- IMPORTANT: do NOT include any other CSS files (like laf-icons.css). -->
   <style>
-    /* ---- Global reset so no icon fonts/masking ever leak in ---- */
     html,body{margin:0;background:#f6f8fb;color:#182338}
     *,*:before,*:after{box-sizing:border-box}
     .app, .app *{
       font-family: system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif !important;
-      font-variant-ligatures: none;
       -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     }
-    /* Nuke any masking/icons some extensions/themes might add */
-    .app input, .app input[type="text"], .app input[type="search"], .pac-target-input{
-      -webkit-text-security: none !important; text-security: none !important;
-      text-shadow:none !important; letter-spacing:normal !important;
-      background-image:none !important; font-style:normal !important; font-weight:400 !important;
+    /* Never mask text and never use icon fonts on inputs */
+    .app input, .pac-target-input{
+      -webkit-text-security:none !important; text-security:none !important;
+      text-shadow:none !important; letter-spacing:normal !important; font-style:normal !important; font-weight:400 !important;
     }
-    /* Google dropdown uses normal font too */
     .pac-container,.pac-item,.pac-item span,.pac-matched{
       font-family: system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif !important; font-size:14px !important;
     }
 
-    /* ---- Layout ---- */
     .wrap{max-width:720px;margin:40px auto;padding:0 18px}
     .card{background:#fff;border:1px solid #eef1f6;border-radius:18px;padding:28px;box-shadow:0 24px 60px -30px rgba(24,35,56,.25)}
     .hidden{display:none!important}
@@ -36,20 +29,23 @@
     input{width:100%;padding:14px;border:1px solid #dfe5ef;border-radius:12px;font-size:15px;background:#fff;color:#182338}
     input:focus{outline:none;border-color:#c9d7ff;box-shadow:0 0 0 4px #eaf0ff}
 
-    /* Stepper/progress (hidden on step 1) */
     .stepper{display:flex;gap:10px;justify-content:center;margin:0 0 10px;padding:0;list-style:none}
     .dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;color:#5f6b85;background:#eef2ff;border:1px solid #d9e4ff}
     .on .dot{background:#0b66ff;border-color:#0b66ff;color:#fff;box-shadow:0 6px 16px rgba(11,102,255,.35)}
     .progress{height:8px;background:#eef2f7;border-radius:999px;overflow:hidden;margin:8px 0 18px}
     .bar{height:100%;width:0;background:linear-gradient(90deg,#0b66ff,#6aa5ff);transition:width .2s}
 
-    /* Address search UI */
+    /* Address search UI — NO all:unset; explicit styles; keep on top */
     .searchwrap{position:relative;margin-top:6px}
-    .searchbar{all:unset;display:block;width:100%;box-sizing:border-box;
-      padding:16px 52px 16px 48px;border-radius:999px;font-size:16px;line-height:1.35;
-      border:1px solid #dce3f0;background:#fff;color:#182338}
-    .searchicon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:18px;opacity:.7}
-    .kbd{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:#95a0b6;border:1px solid #dbe1ee;border-radius:6px;padding:3px 6px;background:#f7f9ff}
+    .searchbar{
+      position:relative; z-index:2; display:block; width:100%;
+      padding:16px 52px 16px 48px; border-radius:999px; font-size:16px; line-height:1.35;
+      border:1px solid #dce3f0; background:#fff; color:#182338;
+    }
+    .searchicon,.kbd{position:absolute;top:50%;transform:translateY(-50%);pointer-events:none}
+    .searchicon{left:14px;font-size:18px;opacity:.7}
+    .kbd{right:14px;font-size:12px;color:#95a0b6;border:1px solid #dbe1ee;border-radius:6px;padding:3px 6px;background:#f7f9ff}
+
     .tiny{font-size:12px;color:#7f8aa1;margin-top:10px}
     .err{color:#b00020;margin-top:6px;display:none}
 
@@ -85,12 +81,14 @@
         </div>
 
         <form id="form" novalidate>
-          <!-- 1) ADDRESS FIRST -->
+          <!-- 1) ADDRESS -->
           <div class="step active" data-step="1">
             <label for="address">Search your property address</label>
             <div class="searchwrap">
               <span class="searchicon">🔎</span>
-              <input id="address" name="address" class="searchbar" placeholder="Start typing your address…" autocomplete="street-address" required />
+              <input id="address" name="address" class="searchbar" type="text"
+                     placeholder="Start typing your address…" autocomplete="off"
+                     autocapitalize="off" autocorrect="off" spellcheck="false" required />
               <span class="kbd">Enter</span>
             </div>
             <div class="tiny">Powered by Google</div>
@@ -264,7 +262,7 @@
 
     // Manual toggle
     $("#manualToggle").addEventListener("click",(e)=>{ e.preventDefault(); manualMode=!manualMode; $("#manual").style.display = manualMode ? "block" : "none"; $("#addrNext").style.display = manualMode ? "inline-block" : "none"; addressSelected=false; $("#placeId").value=""; $("#addrErr").style.display="none"; });
-    // Address input Enter key behavior
+    // Address input events
     $("#address").addEventListener("keydown",(e)=>{ if(e.key==="Enter"){ if(manualMode){ e.preventDefault(); next(); } else { e.preventDefault(); } } });
     $("#address").addEventListener("input",()=>{ addressSelected=false; $("#placeId").value=""; $("#addrErr").style.display="none"; });
 
@@ -272,7 +270,10 @@
     window.initPlaces = function(){
       const input = document.getElementById("address");
       if(!window.google || !google.maps || !google.maps.places || !input){ document.getElementById("addrNext").style.display="inline-block"; return; }
-      const ac = new google.maps.places.Autocomplete(input,{ types:["address"], componentRestrictions:{country:"au"}, fields:["address_components","formatted_address","geometry","place_id"] });
+      const ac = new google.maps.places.Autocomplete(input,{
+        types:["address"], componentRestrictions:{country:"au"},
+        fields:["address_components","formatted_address","geometry","place_id"]
+      });
       ac.addListener("place_changed", ()=>{
         const p = ac.getPlace(); if(!p || !p.address_components) return;
         addressSelected = true; $("#addrErr").style.display="none";
@@ -293,7 +294,7 @@
   })();
   </script>
 
-  <!-- Google Places (replace with your key) -->
+  <!-- Google Places (replace YOUR_GOOGLE_MAPS_API_KEY) -->
   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initPlaces" async defer></script>
 </body>
 </html>
