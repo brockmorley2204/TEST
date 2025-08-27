@@ -1,47 +1,39 @@
-<!-- === Lead form (opaque-white bubble, content-sized) === -->
+<!-- === Lead form (front pill only on step 1) === -->
 <style>
   :root{--brand:#0061ff;--brand-2:#6aa5ff;--accent:#ff6b6b;--accent-2:#ffd166;
         --ink:#0f172a;--muted:#64748b;--line:rgba(15,23,42,.12);--ok:#16a34a}
 
-  /* Center the bubble and keep it only as large as needed */
   .wrap{display:flex;justify-content:center;margin:32px 0}
+
+  /* Default card for steps 2+ (bubble around questions) */
   .card{
-    display:inline-block;              /* size to content */
-    inline-size:clamp(320px, 92vw, 720px);
-    background:rgba(255,255,255,.88);  /* opaque/soft white */
+    display:inline-block; inline-size:clamp(320px,92vw,720px);
+    background:rgba(255,255,255,.88);
     border:1px solid rgba(255,255,255,.70);
-    border-radius:22px;
-    padding:22px;
-    box-shadow:
-      0 8px 24px rgba(0,0,0,.12),
-      0 32px 80px -40px rgba(0,97,255,.35);
+    border-radius:22px; padding:22px;
+    box-shadow:0 8px 24px rgba(0,0,0,.12), 0 32px 80px -40px rgba(0,97,255,.35);
     backdrop-filter:saturate(1.15) blur(6px);
   }
 
-  /* Progress: line only (hidden on step 1) */
+  /* HERO MODE (step 1) — hide the rear tile */
+  .hero .card{background:transparent;border-color:transparent;box-shadow:none;padding:0}
+
+  /* Progress (line only; hidden on step 1) */
   .progress{height:10px;background:#eef2f7;border-radius:999px;overflow:hidden;margin:0 0 16px}
   .bar{height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand-2),var(--accent),var(--accent-2));
        background-size:200% 100%;animation:slide 10s linear infinite;transition:width .25s}
   @keyframes slide{from{background-position:0 0}to{background-position:200% 0}}
 
-  /* Steps */
   .step{display:none;animation:fade .18s ease}
   .step.active{display:block}
   @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
   .visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
 
-  /* Search pill (step 1) */
+  /* Search pill */
   .searchwrap{position:relative}
-  .searchbar{
-    width:100%;
-    padding:18px 64px 18px 54px;
-    border-radius:999px;
-    border:1px solid #dce3f0;
-    background:#fff;
-    font-size:17px;line-height:1.35;
-    box-shadow:0 20px 40px -22px rgba(0,0,0,.25);
-  }
+  .searchbar{width:100%;padding:18px 64px 18px 54px;border-radius:999px;border:1px solid #dce3f0;background:#fff;
+             font-size:17px;line-height:1.35;box-shadow:0 20px 40px -22px rgba(0,0,0,.25)}
   .icon,.kbd{position:absolute;top:50%;transform:translateY(-50%);pointer-events:none}
   .icon{left:16px;color:#64748b}
   .icon svg{width:18px;height:18px;display:block}
@@ -76,15 +68,15 @@
   .pac-container,.pac-item,.pac-item span,.pac-matched{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif!important;font-size:14px!important}
 </style>
 
-<div class="wrap" id="shell">
+<div class="wrap hero" id="shell">
   <div class="card">
-    <!-- Progress line only (hidden on step 1) -->
+    <!-- Progress (hidden on step 1) -->
     <div id="controls" style="display:none">
       <div class="progress"><div class="bar" id="bar"></div></div>
     </div>
 
     <form id="form" novalidate>
-      <!-- STEP 1: address looks like search -->
+      <!-- STEP 1: address (only front pill visible) -->
       <div class="step active" data-step="1">
         <label class="visually-hidden" for="address">Search your property address</label>
         <div class="searchwrap" style="margin-top:4px">
@@ -114,7 +106,6 @@
         <div id="addrErr" class="err">Please select an address from the list, or use manual entry.</div>
         <div class="tiny" style="margin-top:8px"><a href="#" id="manualToggle">Can’t find it? Enter address manually.</a></div>
 
-        <!-- Manual fallback -->
         <div id="manual" style="display:none;margin-top:10px">
           <div style="display:grid;gap:10px;grid-template-columns:1fr">
             <input id="m_street" placeholder="Street address (e.g. 10 Example St)" />
@@ -128,7 +119,7 @@
         </div>
       </div>
 
-      <!-- STEP 2: property type -->
+      <!-- STEP 2 -->
       <div class="step" data-step="2">
         <input type="hidden" id="ptype" name="propertyType" required />
         <div class="choices" id="ptypeChoices">
@@ -141,7 +132,7 @@
         <div class="btns"><button type="button" class="back">Back</button></div>
       </div>
 
-      <!-- STEP 3: price -->
+      <!-- STEP 3 -->
       <div class="step" data-step="3">
         <input type="hidden" id="price" name="priceBand" required />
         <div class="choices" id="priceChoices">
@@ -153,7 +144,7 @@
         <div class="btns"><button type="button" class="back">Back</button></div>
       </div>
 
-      <!-- STEP 4: phone -->
+      <!-- STEP 4 -->
       <div class="step" data-step="4">
         <div class="field">
           <span class="ficon" aria-hidden="true">
@@ -167,7 +158,7 @@
         <div class="btns"><button type="button" class="back">Back</button><button type="button" class="next">Next</button></div>
       </div>
 
-      <!-- STEP 5: email -->
+      <!-- STEP 5 -->
       <div class="step" data-step="5">
         <div class="field">
           <span class="ficon" aria-hidden="true">
@@ -181,7 +172,7 @@
         <div class="btns"><button type="button" class="back">Back</button><button type="submit" class="submit">See my match</button></div>
       </div>
 
-      <!-- STEP 6: thank you -->
+      <!-- STEP 6 -->
       <div class="step" data-step="6">
         <div style="text-align:center;padding:6px 2px">
           <h2 style="margin:6px 0 10px">Thank you for completing! 🎉</h2>
@@ -197,11 +188,11 @@
 <script>
 (function(){
   const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwQW0E9h0gWIN-wX6CDKUQJrjXzkfgA6sTIpqwd3-HisuiiJGXgcgSsUl5HWH8uV48/exec";
-  const PROJECT = "agent-matcher-v1";
-  const formSteps = 5;
+  const PROJECT = "agent-matcher-v1"; const formSteps = 5;
 
   const $ = s => document.querySelector(s);
-  const form = $("#form"), steps=[...form.querySelectorAll(".step")], bar=$("#bar"), controls=$("#controls"), statusEl=$("#status");
+  const form=$("#form"), steps=[...form.querySelectorAll(".step")], bar=$("#bar"),
+        controls=$("#controls"), statusEl=$("#status"), shell=$("#shell");
   let stepIndex=0, manualMode=false, addressSelected=false;
 
   function showStep(i){
@@ -209,16 +200,18 @@
     steps.forEach((s,idx)=>s.classList.toggle("active",idx===stepIndex));
     const pct=Math.round((Math.min(stepIndex+1,formSteps)/formSteps)*100);
     if(bar) bar.style.width=pct+"%";
-    controls.style.display = stepIndex===0 ? "none" : ""; // hide progress on step 1
+    controls.style.display = stepIndex===0 ? "none" : "";
+    shell.classList.toggle("hero", stepIndex===0);   // <- hide rear tile on step 1
   }
+
   function fieldsForStep(){ const inputs=steps[stepIndex]?.querySelectorAll("input,select")||[]; const d={}; inputs.forEach(i=>d[i.name||i.id]=(i.value||"").trim()); return d; }
   function valid(){
     if(stepIndex===0){
       if(manualMode){
         const st=$("#m_street").value.trim(), sb=$("#m_suburb").value.trim(), stt=$("#m_state").value.trim(), pc=$("#m_postcode").value.trim();
         if(!st||!sb||!stt||pc.length!==4) return false;
-        $("#address").value=`${st}, ${sb} ${stt} ${pc}`; $("#addressFull").value=$("#address").value; $("#placeId").value=""; $("#addrPostcode").value=pc;
-        $("#locality").value=sb; $("#state").value=stt; $("#addrErr").style.display="none"; return true;
+        $("#address").value=`${st}, ${sb} ${stt} ${pc}`; $("#addressFull").value=$("#address").value; $("#placeId").value="";
+        $("#locality").value=sb; $("#state").value=stt; $("#addrPostcode").value=pc; $("#addrErr").style.display="none"; return true;
       } else if(!addressSelected || !$("#placeId").value){ $("#addrErr").style.display="block"; return false; }
     }
     const req=steps[stepIndex].querySelectorAll("input[required],select[required]");
@@ -250,12 +243,10 @@
   });
   form.addEventListener("submit",(e)=>{ e.preventDefault(); if(!valid()){ statusEl && (statusEl.textContent="Please complete this step."); return; } save("complete"); showStep(formSteps); });
 
-  // Address manual toggle + events
   $("#manualToggle").addEventListener("click",(e)=>{ e.preventDefault(); manualMode=!manualMode; $("#manual").style.display=manualMode?"block":"none"; addressSelected=false; $("#placeId").value=""; $("#addrErr").style.display="none"; });
   $("#address").addEventListener("keydown",(e)=>{ if(e.key==="Enter"){ if(manualMode){ e.preventDefault(); next(); } else { e.preventDefault(); } } });
   $("#address").addEventListener("input",()=>{ addressSelected=false; $("#placeId").value=""; $("#addrErr").style.display="none"; });
 
-  // Google Places init (callback)
   window.initPlaces=function(){
     const input=document.getElementById("address");
     if(!window.google||!google.maps||!google.maps.places||!input) return;
@@ -271,15 +262,13 @@
       $("#state").value=(comps.administrative_area_level_1&&comps.administrative_area_level_1.short_name)||"";
       $("#addrPostcode").value=(comps.postal_code&&comps.postal_code.long_name)||"";
       $("#address").value=$("#addressFull").value;
-      save("step"); showStep(1); // reveal progress and move on
+      save("step"); showStep(1); // progress appears; rear tile returns on next steps
     });
   };
 
-  // Start at step 1
-  showStep(0);
+  showStep(0); // start in hero mode (no rear tile)
 })();
 </script>
 
-<!-- Google Places (your key) -->
+<!-- Google Places -->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpch_gAy-hFApqu4wVX7X42HqFR4qYMoY&libraries=places&callback=initPlaces" async defer></script>
-<!-- === /Lead form === -->
