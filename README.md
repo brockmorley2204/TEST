@@ -295,6 +295,7 @@
   </script>
 
   <!-- Google Places (replace YOUR_GOOGLE_MAPS_API_KEY) -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initPlaces" async defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpch_gAy-hFApqu4wVX7X42HqFR4qYMoY&libraries=places&callback=initPlaces" async defer></script>
+
 </body>
 </html>
