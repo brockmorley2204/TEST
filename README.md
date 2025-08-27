@@ -26,17 +26,14 @@
       transition:padding .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
     }
 
-    /* HERO MODE (step 1): show *only* the search bar, no card chrome */
-    .hero .card{
-      background:transparent; border-color:transparent; box-shadow:none;
-      padding:0; /* search pill carries the visual weight */
-    }
+    /* HERO MODE (step 1) */
+    .hero .card{ background:transparent; border-color:transparent; box-shadow:none; padding:0; }
     .hero [data-hide-on-hero]{display:none !important;}
 
     h1{margin:0 0 8px;font-size:26px;letter-spacing:.2px}
     p.lead{margin:0 0 18px;color:var(--muted)}
 
-    /* Stepper / progress (hidden on step 1 by JS AND by hero class) */
+    /* Stepper / progress */
     .stepper{display:flex;justify-content:center;gap:14px;list-style:none;margin:0 0 10px;padding:0}
     .dot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;
       color:#4b5563;background:#eef2ff;border:1px solid #dbe4ff;transition:transform .15s, box-shadow .2s}
@@ -47,7 +44,6 @@
       background-size:200% 100%;animation:slide 10s linear infinite;transition:width .25s}
     @keyframes slide{from{background-position:0% 0}to{background-position:200% 0}}
 
-    /* Steps */
     .step{display:none;animation:fade .18s ease}
     .step.active{display:block}
     @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
@@ -58,15 +54,17 @@
     input{width:100%;padding:14px;border:1px solid var(--line);border-radius:14px;font-size:15px;background:#fff;color:var(--ink)}
     input:focus{outline:none;border-color:#c9d7ff;box-shadow:0 0 0 5px #eaf0ff}
 
-    /* Search pill (hero) */
+    /* Search pill */
     .searchwrap{position:relative;margin-top:6px}
     .searchbar{
       position:relative;z-index:2;width:100%;
-      padding:18px 64px 18px 54px;border-radius:999px;border:1px solid #dce3f0;background:#fff;font-size:17px;line-height:1.35;
+      padding:18px 64px 18px 54px; /* space for icon + kbd */
+      border-radius:999px;border:1px solid #dce3f0;background:#fff;font-size:17px;line-height:1.35;
       box-shadow:0 25px 50px -22px rgba(0,0,0,.25);
     }
     .icon,.kbd{position:absolute;top:50%;transform:translateY(-50%);pointer-events:none}
-    .icon{left:16px;font-size:19px;opacity:.72}
+    .icon{left:16px;color:#64748b}            /* icon colour */
+    .icon svg{width:18px;height:18px;display:block}
     .kbd{right:14px;font-size:12px;color:#93a0b6;border:1px solid #dbe1ee;border-radius:6px;padding:3px 6px;background:#f7f9ff}
 
     .tiny{font-size:12px;color:#7c879a;margin-top:10px}
@@ -99,13 +97,12 @@
 <body>
   <div class="wrap hero" id="shell">
     <div class="card">
-      <!-- Heading & intro (hidden in hero mode) -->
+      <!-- Hidden during hero mode -->
       <div data-hide-on-hero>
         <h1>We’ll match you to a top local agent</h1>
         <p class="lead">Answer a few quick questions. We’ll share your best match and the agent’s marketing plan.</p>
       </div>
 
-      <!-- Progress (hidden on step 1 and by hero mode) -->
       <div id="controls" data-hide-on-hero>
         <ol class="stepper" id="stepper" aria-label="Form progress">
           <li class="on"><span class="dot">1</span></li>
@@ -118,11 +115,19 @@
       </div>
 
       <form id="form" novalidate>
-        <!-- 1) ADDRESS FIRST — looks like a plain search bar -->
+        <!-- 1) ADDRESS (hero search) -->
         <div class="step active" data-step="1">
           <label class="visually-hidden" for="address">Search your property address</label>
           <div class="searchwrap">
-            <span class="icon">🔎</span>
+            <!-- Small SVG magnifying glass -->
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="7"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+
             <input id="address" name="address" class="searchbar" type="text"
                    placeholder="Search your property address…" autocomplete="off"
                    autocapitalize="off" autocorrect="off" spellcheck="false" required />
@@ -130,7 +135,7 @@
           </div>
           <div class="tiny">Powered by Google</div>
 
-          <!-- Hidden structured fields -->
+          <!-- Hidden address fields -->
           <input type="hidden" id="addressFull" name="addressFull" />
           <input type="hidden" id="placeId" name="placeId" />
           <input type="hidden" id="streetNumber" name="streetNumber" />
@@ -144,7 +149,6 @@
           <div id="addrErr" class="err">Please select an address from the list, or use manual entry.</div>
           <div class="tiny" style="margin-top:8px"><a href="#" id="manualToggle">Can’t find it? Enter address manually.</a></div>
 
-          <!-- Manual fallback -->
           <div id="manual" style="display:none;margin-top:10px">
             <div style="display:grid;gap:10px;grid-template-columns:1fr">
               <input id="m_street" placeholder="Street address (e.g. 10 Example St)" />
@@ -162,7 +166,7 @@
           </div>
         </div>
 
-        <!-- 2) PROPERTY TYPE -->
+        <!-- 2) TYPE -->
         <div class="step" data-step="2">
           <label>Property type</label>
           <input type="hidden" id="ptype" name="propertyType" required />
@@ -236,9 +240,7 @@
 
     let stepIndex = 0, manualMode = false, addressSelected = false;
 
-    function setHeroMode(on){
-      shell.classList.toggle("hero", !!on);
-    }
+    function setHeroMode(on){ shell.classList.toggle("hero", !!on); }
 
     function showStep(i){
       stepIndex = Math.max(0, Math.min(i, steps.length-1));
@@ -248,7 +250,7 @@
       if (stepper.length) stepper.forEach((li,i)=>li.classList.toggle("on", i===Math.min(stepIndex, formSteps-1)));
       if (controls) controls.style.display = stepIndex===0 ? "none" : "";
       if (statusEl) statusEl.style.display = stepIndex===0 ? "none" : "";
-      setHeroMode(stepIndex===0); // <- make step 1 look like a standalone search UI
+      setHeroMode(stepIndex===0);
     }
 
     function fieldsForStep(){
@@ -331,17 +333,15 @@
         $("#addrPostcode").value = (comps.postal_code && comps.postal_code.long_name) || "";
         $("#address").value = $("#addressFull").value;
 
-        // Flip out of hero mode once we have an address
-        save("step"); showStep(1);
+        save("step"); showStep(1); // exit hero mode and continue
       });
     };
 
-    // Start in hero mode
     showStep(0);
   })();
   </script>
 
-  <!-- Google Places (your key embedded as requested) -->
+  <!-- Google Places (key as requested) -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpch_gAy-hFApqu4wVX7X42HqFR4qYMoY&libraries=places&callback=initPlaces" async defer></script>
 </body>
 </html>
